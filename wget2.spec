@@ -1,7 +1,11 @@
 # Conditional build:
 %bcond_without	tests	# check target
 %bcond_with	gnutls	# use GnuTLS (wget default) instead of OpenSSL
+%bcond_with	pandoc	# build man with pandoc
 
+%ifarch x32
+%undefine	with_pandoc
+%endif
 Summary:	A utility for retrieving files using the HTTP or FTP protocols
 Summary(es.UTF-8):	Cliente en línea de comando para bajar archivos WWW/FTP con recursión opcional
 Summary(fr.UTF-8):	Un utilitaire pour recuperer des fichiers en utilisant les protocoles HTTP ou FTP
@@ -12,7 +16,7 @@ Summary(uk.UTF-8):	Утиліта для отримання файлів по п
 Summary(zh_CN.UTF-8):	[通讯]功能强大的下载程序,支持断点续传
 Name:		wget2
 Version:	1.99.2
-Release:	1
+Release:	2
 License:	GPL v3+ with OpenSSL exception
 Group:		Networking/Utilities
 Source0:	https://ftp.gnu.org/gnu/wget/%{name}-%{version}.tar.lz
@@ -31,7 +35,7 @@ BuildRequires:	libpsl-devel >= 0.16.0
 BuildRequires:	nghttp2-devel
 # >= 1.1.0 for TLSv1.3
 %{!?with_gnutls:BuildRequires:	openssl-devel >= 1.0.1}
-BuildRequires:	pandoc
+%{?with_pandoc:BuildRequires:	pandoc}
 BuildRequires:	pcre2-8-devel
 BuildRequires:	pkgconfig
 BuildRequires:	tar >= 1:1.22
@@ -182,6 +186,11 @@ install -d $RPM_BUILD_ROOT%{_sysconfdir}
 	DESTDIR=$RPM_BUILD_ROOT
 
 rm $RPM_BUILD_ROOT%{_bindir}/wget2_noinstall
+
+%if %{without pandoc}
+install -d $RPM_BUILD_ROOT%{_mandir}/man1
+cp -p docs/man/man1/wget2.1 $RPM_BUILD_ROOT%{_mandir}/man1
+%endif
 
 %find_lang %{name}
 
