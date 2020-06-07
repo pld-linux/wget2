@@ -3,9 +3,6 @@
 %bcond_with	gnutls	# use GnuTLS (wget default) instead of OpenSSL
 %bcond_with	pandoc	# build man with pandoc
 
-%ifarch x32
-%undefine	with_pandoc
-%endif
 Summary:	A utility for retrieving files using the HTTP or FTP protocols
 Summary(es.UTF-8):	Cliente en línea de comando para bajar archivos WWW/FTP con recursión opcional
 Summary(fr.UTF-8):	Un utilitaire pour recuperer des fichiers en utilisant les protocoles HTTP ou FTP
