@@ -1,3 +1,4 @@
+#
 # Conditional build:
 %bcond_without	tests	# check target
 %bcond_with	gnutls	# use GnuTLS (wget default) instead of OpenSSL
@@ -12,23 +13,25 @@ Summary(ru.UTF-8):	Утилита для получения файлов по п
 Summary(uk.UTF-8):	Утиліта для отримання файлів по протоколам HTTP та FTP
 Summary(zh_CN.UTF-8):	[通讯]功能强大的下载程序,支持断点续传
 Name:		wget2
-Version:	1.99.2
-Release:	3
+Version:	2.0.0
+Release:	1
 License:	GPL v3+ with OpenSSL exception
 Group:		Networking/Utilities
 Source0:	https://ftp.gnu.org/gnu/wget/%{name}-%{version}.tar.lz
-# Source0-md5:	a611727632b4d81cb894621ce01a435d
+# Source0-md5:	87e462bbee668e12695dd429499a0e15
 URL:		http://www.gnu.org/software/wget/
 BuildRequires:	bzip2-devel
 BuildRequires:	doxygen
+BuildRequires:	gettext-tools >= 0.19.3
 # >= 3.6.3 for TLSv1.3
 %{?with_gnutls:BuildRequires:	gnutls-devel >= 3.0.16}
 BuildRequires:	gpgme-devel
 BuildRequires:	libbrotli-devel
 BuildRequires:	libhsts-devel
-BuildRequires:	libidn2-devel
+BuildRequires:	libidn2-devel >= 0.14.0
 BuildRequires:	libmicrohttpd-devel
 BuildRequires:	libpsl-devel >= 0.16.0
+BuildRequires:	lzlib-devel
 BuildRequires:	nghttp2-devel
 # >= 1.1.0 for TLSv1.3
 %{!?with_gnutls:BuildRequires:	openssl-devel >= 1.0.1}
@@ -39,10 +42,7 @@ BuildRequires:	tar >= 1:1.22
 BuildRequires:	xz-devel
 BuildRequires:	zlib-devel
 BuildRequires:	zstd-devel
-%{?with_gnutls:Requires:	gnutls-libs >= 3.0.16}
-Requires:	libpsl >= 0.16.0
 Requires:	libwget2 = %{version}-%{release}
-%{!?with_gnutls:Requires:	openssl >= 1.0.1}
 Provides:	webclient
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
@@ -117,11 +117,19 @@ Proxy серверів, настроюваність.
 
 %package -n libwget2
 Summary:	Library that provides the basic functions needed by a web client
+Summary(pl.UTF-8):	Biblioteka udostępniająca podstawowe funkcje klienta WWW
 License:	LGPL v3+
 Group:		Libraries
+%{?with_gnutls:Requires:	gnutls-libs >= 3.0.16}
+Requires:	libidn2 >= 0.14.0
+Requires:	libpsl >= 0.16.0
+%{!?with_gnutls:Requires:	openssl >= 1.0.1}
 
 %description -n libwget2
 Library that provides the basic functions needed by a web client.
+
+%description -n libwget2 -l pl.UTF-8
+Biblioteka udostępniająca podstawowe funkcje klienta WWW.
 
 %package -n libwget2-devel
 Summary:	Header files for wget2 library
@@ -182,7 +190,7 @@ install -d $RPM_BUILD_ROOT%{_sysconfdir}
 %{__make} install \
 	DESTDIR=$RPM_BUILD_ROOT
 
-rm $RPM_BUILD_ROOT%{_bindir}/wget2_noinstall
+%{__rm} $RPM_BUILD_ROOT%{_bindir}/wget2_noinstall
 
 %if %{without pandoc}
 install -d $RPM_BUILD_ROOT%{_mandir}/man1
@@ -191,11 +199,11 @@ cp -p docs/man/man1/wget2.1 $RPM_BUILD_ROOT%{_mandir}/man1
 
 %find_lang %{name}
 
-%post -n libwget2 -p /sbin/ldconfig
-%postun -n libwget2 -p /sbin/ldconfig
-
 %clean
 rm -rf $RPM_BUILD_ROOT
+
+%post	-n libwget2 -p /sbin/ldconfig
+%postun	-n libwget2 -p /sbin/ldconfig
 
 %files -f %{name}.lang
 %defattr(644,root,root,755)
@@ -205,18 +213,18 @@ rm -rf $RPM_BUILD_ROOT
 
 %files -n libwget2
 %defattr(644,root,root,755)
-%attr(755,root,root) %{_libdir}/libwget.so.*.*
-%attr(755,root,root) %ghost %{_libdir}/libwget.so.0
+%attr(755,root,root) %{_libdir}/libwget*.so.*.*.*
+%attr(755,root,root) %ghost %{_libdir}/libwget*.so.1
 
 %files -n libwget2-devel
 %defattr(644,root,root,755)
+%attr(755,root,root) %{_libdir}/libwget*.so
+%{_libdir}/libwget*.la
 %{_includedir}/wget.h
 %{_includedir}/wgetver.h
-%{_mandir}/man3/libwget*.3*
 %{_pkgconfigdir}/libwget.pc
-%{_libdir}/libwget.la
-%attr(755,root,root) %{_libdir}/libwget.so
+%{_mandir}/man3/libwget*.3*
 
 %files -n libwget2-static
 %defattr(644,root,root,755)
-%{_libdir}/libwget.a
+%{_libdir}/libwget*.a
