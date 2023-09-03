@@ -13,16 +13,16 @@ Summary(ru.UTF-8):	Утилита для получения файлов по п
 Summary(uk.UTF-8):	Утиліта для отримання файлів по протоколам HTTP та FTP
 Summary(zh_CN.UTF-8):	[通讯]功能强大的下载程序,支持断点续传
 Name:		wget2
-Version:	2.0.0
+Version:	2.1.0
 Release:	1
 License:	GPL v3+ with OpenSSL exception
 Group:		Networking/Utilities
 Source0:	https://ftp.gnu.org/gnu/wget/%{name}-%{version}.tar.lz
-# Source0-md5:	87e462bbee668e12695dd429499a0e15
+# Source0-md5:	0ec2d5738a19967e90e26e3f28f83339
 URL:		http://www.gnu.org/software/wget/
 BuildRequires:	bzip2-devel
 BuildRequires:	doxygen
-BuildRequires:	gettext-tools >= 0.19.3
+BuildRequires:	gettext-tools >= 0.21
 # >= 3.6.3 for TLSv1.3
 %{?with_gnutls:BuildRequires:	gnutls-devel >= 3.0.16}
 BuildRequires:	gpgme-devel
@@ -33,8 +33,7 @@ BuildRequires:	libmicrohttpd-devel
 BuildRequires:	libpsl-devel >= 0.16.0
 BuildRequires:	lzlib-devel
 BuildRequires:	nghttp2-devel
-# >= 1.1.0 for TLSv1.3
-%{!?with_gnutls:BuildRequires:	openssl-devel >= 1.0.1}
+%{!?with_gnutls:BuildRequires:	openssl-devel >= 1.1.0}
 %{?with_pandoc:BuildRequires:	pandoc}
 BuildRequires:	pcre2-8-devel
 BuildRequires:	pkgconfig
@@ -123,7 +122,7 @@ Group:		Libraries
 %{?with_gnutls:Requires:	gnutls-libs >= 3.0.16}
 Requires:	libidn2 >= 0.14.0
 Requires:	libpsl >= 0.16.0
-%{!?with_gnutls:Requires:	openssl >= 1.0.1}
+%{!?with_gnutls:Requires:	openssl >= 1.1.0}
 
 %description -n libwget2
 Library that provides the basic functions needed by a web client.
@@ -163,21 +162,20 @@ Statyczna biblioteka wget2.
 %build
 %configure \
 	LDCONFIG=true \
-	--with-linux-crypto \
-	%{!?with_gnutls:--with-openssl=yes} \
-	--with-ssl%{!?with_gnutls:=openssl} \
-	--with-libpsl \
-	--with-libhsts \
-	--with-libnghttp2 \
+	--disable-silent-rules \
 	--with-bzip2 \
 	--with-gpgme \
-	--with-zlib \
-	--with-lzma \
+	--with-libhsts \
 	--with-libidn2 \
-	--with-libpcre2 \
 	--with-libmicrohttpd \
+	--with-libnghttp2 \
+	--with-libpcre2 \
+	--with-libpsl \
+	--with-linux-crypto \
+	--with-lzma \
 	--with-plugin-support \
-	--disable-silent-rules \
+	--with-ssl%{!?with_gnutls:=openssl} \
+	--with-zlib \
 	%{nil}
 %{__make}
 
@@ -191,6 +189,8 @@ install -d $RPM_BUILD_ROOT%{_sysconfdir}
 	DESTDIR=$RPM_BUILD_ROOT
 
 %{__rm} $RPM_BUILD_ROOT%{_bindir}/wget2_noinstall
+# obsoleted by pkg-config
+%{__rm} $RPM_BUILD_ROOT%{_libdir}/libwget.la
 
 %if %{without pandoc}
 install -d $RPM_BUILD_ROOT%{_mandir}/man1
@@ -213,13 +213,12 @@ rm -rf $RPM_BUILD_ROOT
 
 %files -n libwget2
 %defattr(644,root,root,755)
-%attr(755,root,root) %{_libdir}/libwget*.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libwget*.so.1
+%attr(755,root,root) %{_libdir}/libwget.so.*.*.*
+%attr(755,root,root) %ghost %{_libdir}/libwget.so.2
 
 %files -n libwget2-devel
 %defattr(644,root,root,755)
-%attr(755,root,root) %{_libdir}/libwget*.so
-%{_libdir}/libwget*.la
+%attr(755,root,root) %{_libdir}/libwget.so
 %{_includedir}/wget.h
 %{_includedir}/wgetver.h
 %{_pkgconfigdir}/libwget.pc
@@ -227,4 +226,4 @@ rm -rf $RPM_BUILD_ROOT
 
 %files -n libwget2-static
 %defattr(644,root,root,755)
-%{_libdir}/libwget*.a
+%{_libdir}/libwget.a
