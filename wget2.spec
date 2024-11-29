@@ -1,8 +1,9 @@
 #
 # Conditional build:
-%bcond_without	tests	# check target
-%bcond_with	gnutls	# use GnuTLS (wget default) instead of OpenSSL
-%bcond_with	pandoc	# build man with pandoc
+%bcond_without	tests		# check target
+%bcond_with	gnutls		# use GnuTLS (wget default) instead of OpenSSL
+%bcond_without	libproxy	# system wide proxy configuration support
+%bcond_with	pandoc		# build man with pandoc
 
 Summary:	A utility for retrieving files using the HTTP or FTP protocols
 Summary(es.UTF-8):	Cliente en línea de comando para bajar archivos WWW/FTP con recursión opcional
@@ -13,34 +14,35 @@ Summary(ru.UTF-8):	Утилита для получения файлов по п
 Summary(uk.UTF-8):	Утиліта для отримання файлів по протоколам HTTP та FTP
 Summary(zh_CN.UTF-8):	[通讯]功能强大的下载程序,支持断点续传
 Name:		wget2
-Version:	2.1.0
+Version:	2.2.0
 Release:	1
 License:	GPL v3+ with OpenSSL exception
 Group:		Networking/Utilities
 Source0:	https://ftp.gnu.org/gnu/wget/%{name}-%{version}.tar.lz
-# Source0-md5:	0ec2d5738a19967e90e26e3f28f83339
+# Source0-md5:	d3917ed5ed4600b63bd2b9b01c6447d5
 URL:		http://www.gnu.org/software/wget/
-BuildRequires:	bzip2-devel
+BuildRequires:	bzip2-devel >= 1.0.6
 BuildRequires:	doxygen
 BuildRequires:	gettext-tools >= 0.21
-# >= 3.6.3 for TLSv1.3
-%{?with_gnutls:BuildRequires:	gnutls-devel >= 3.0.16}
-BuildRequires:	gpgme-devel
-BuildRequires:	libbrotli-devel
+%{?with_gnutls:BuildRequires:	gnutls-devel >= 3.5.0}
+BuildRequires:	gpgme-devel >= 0.4.2
+BuildRequires:	libbrotli-devel >= 1.0.0
 BuildRequires:	libhsts-devel
 BuildRequires:	libidn2-devel >= 0.14.0
-BuildRequires:	libmicrohttpd-devel
+%{?with_tests:BuildRequires:	libmicrohttpd-devel >= 0.9.51}
+%{?with_libproxy:BuildRequires:	libproxy-devel}
 BuildRequires:	libpsl-devel >= 0.16.0
+BuildRequires:	lzip
 BuildRequires:	lzlib-devel
-BuildRequires:	nghttp2-devel
+BuildRequires:	nghttp2-devel >= 1.3.0
 %{!?with_gnutls:BuildRequires:	openssl-devel >= 1.1.0}
 %{?with_pandoc:BuildRequires:	pandoc}
 BuildRequires:	pcre2-8-devel
-BuildRequires:	pkgconfig
+BuildRequires:	pkgconfig >= 1:0.28
 BuildRequires:	tar >= 1:1.22
-BuildRequires:	xz-devel
-BuildRequires:	zlib-devel
-BuildRequires:	zstd-devel
+BuildRequires:	xz-devel >= 1:5.1.1
+BuildRequires:	zlib-devel >= 1.2.3
+BuildRequires:	zstd-devel >= 1.3.0
 Requires:	libwget2 = %{version}-%{release}
 Provides:	webclient
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
@@ -119,7 +121,7 @@ Summary:	Library that provides the basic functions needed by a web client
 Summary(pl.UTF-8):	Biblioteka udostępniająca podstawowe funkcje klienta WWW
 License:	LGPL v3+
 Group:		Libraries
-%{?with_gnutls:Requires:	gnutls-libs >= 3.0.16}
+%{?with_gnutls:Requires:	gnutls-libs >= 3.5.0}
 Requires:	libidn2 >= 0.14.0
 Requires:	libpsl >= 0.16.0
 %{!?with_gnutls:Requires:	openssl >= 1.1.0}
@@ -163,6 +165,7 @@ Statyczna biblioteka wget2.
 %configure \
 	LDCONFIG=true \
 	--disable-silent-rules \
+	%{?with_libproxy:--enable-libproxy} \
 	--with-bzip2 \
 	--with-gpgme \
 	--with-libhsts \
@@ -214,7 +217,7 @@ rm -rf $RPM_BUILD_ROOT
 %files -n libwget2
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_libdir}/libwget.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libwget.so.2
+%attr(755,root,root) %ghost %{_libdir}/libwget.so.3
 
 %files -n libwget2-devel
 %defattr(644,root,root,755)
