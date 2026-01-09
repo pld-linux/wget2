@@ -14,13 +14,13 @@ Summary(ru.UTF-8):	Утилита для получения файлов по п
 Summary(uk.UTF-8):	Утиліта для отримання файлів по протоколам HTTP та FTP
 Summary(zh_CN.UTF-8):	[通讯]功能强大的下载程序,支持断点续传
 Name:		wget2
-Version:	2.2.0
-Release:	2
+Version:	2.2.1
+Release:	1
 License:	GPL v3+ with OpenSSL exception
 Group:		Networking/Utilities
 Source0:	https://ftp.gnu.org/gnu/wget/%{name}-%{version}.tar.lz
-# Source0-md5:	d3917ed5ed4600b63bd2b9b01c6447d5
-URL:		http://www.gnu.org/software/wget/
+# Source0-md5:	895e96406b963b5b2d3b24b4d6ba6834
+URL:		https://www.gnu.org/software/wget/
 BuildRequires:	bzip2-devel >= 1.0.6
 BuildRequires:	doxygen
 BuildRequires:	gettext-tools >= 0.21
@@ -217,7 +217,7 @@ rm -rf $RPM_BUILD_ROOT
 %files -n libwget2
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_libdir}/libwget.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libwget.so.3
+%attr(755,root,root) %ghost %{_libdir}/libwget.so.4
 
 %files -n libwget2-devel
 %defattr(644,root,root,755)
